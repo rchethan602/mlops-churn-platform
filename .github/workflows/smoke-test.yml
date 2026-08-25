@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   verify-aws-trust:
-    runs-on: ubuntu-latest
+    runs-on: mlflow-runner
     steps:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
