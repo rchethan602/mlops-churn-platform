@@ -1,0 +1,29 @@
+name: AWS OIDC Smoke Test
+
+# Manual trigger only - this workflow exists purely to validate the
+# GitHub -> AWS OIDC trust chain before any real pipeline depends on it.
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required: lets GitHub mint the OIDC token for this run
+  contents: read
+
+jobs:
+  verify-aws-trust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::907615197397:role/github-actions-oidc-role
+          aws-region: eu-central-1
+
+      - name: Confirm identity AWS sees us as
+        run: aws sts get-caller-identity
+
+      - name: Confirm S3 bucket access (read-only list)
+        run: aws s3 ls s3://mlops-churn-dataset/
+
+      - name: Confirm ECR auth works
+        run: aws ecr get-login-password --region eu-central-1 > /dev/null && echo "ECR auth OK"

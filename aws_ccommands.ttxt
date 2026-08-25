@@ -1,0 +1,27 @@
+///
+
+aws iam create-open-id-connect-provider \
+  --url https://token.actions.githubusercontent.com \
+  --client-id-list sts.amazonaws.com \
+  --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1
+
+{
+    "OpenIDConnectProviderArn": "arn:aws:iam::907615197397:oidc-provider/token.actions.githubusercontent.com"
+}
+(END)
+
+
+ # Create the role with the trust policy                                                                                                    <aws:twist>
+aws iam create-role \
+  --role-name github-actions-oidc-role \
+  --assume-role-policy-document file://github-actions-trust-policy.json --profile twist \
+  --description "Assumed by GitHub Actions in mlops-churn-platform via OIDC"
+
+# Attach the permissions as an inline policy
+aws iam put-role-policy \
+  --role-name github-actions-oidc-role \
+  --policy-name mlops-churn-ci-permissions  --profile twist\
+  --policy-document file://github-actions-role.json
+
+
+///
