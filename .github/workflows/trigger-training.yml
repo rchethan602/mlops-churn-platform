@@ -12,17 +12,5 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Verify/install python3, pip, and boto3
-        run: |
-          python3 --version
-
-          if ! command -v pip3 &> /dev/null; then
-            echo "pip3 not found - installing via sudo"
-            sudo apt-get update -qq && sudo apt-get install -y -qq python3-pip
-          fi
-          pip3 --version
-
-          pip3 install boto3 --user --break-system-packages
-
       - name: Launch SageMaker training job
         run: python3 scripts/launch_sagemaker_job.py
