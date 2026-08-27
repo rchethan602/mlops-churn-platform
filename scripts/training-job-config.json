@@ -1,0 +1,38 @@
+{
+    "TrainingJobName": "PLACEHOLDER-SET-BY-SCRIPT",
+    "AlgorithmSpecification": {
+      "TrainingImage": "907615197397.dkr.ecr.eu-central-1.amazonaws.com/mlops-churn-train:v1",
+      "TrainingInputMode": "File"
+    },
+    "RoleArn": "arn:aws:iam::907615197397:role/sagemaker-execution-role",
+    "InputDataConfig": [
+      {
+        "ChannelName": "train",
+        "DataSource": {
+          "S3DataSource": {
+            "S3DataType": "S3Prefix",
+            "S3Uri": "s3://mlops-churn-dataset/raw/vehicle-predictive-maintenance/v1/",
+            "S3DataDistributionType": "FullyReplicated"
+          }
+        },
+        "ContentType": "text/csv"
+      }
+    ],
+    "OutputDataConfig": {
+      "S3OutputPath": "s3://mlops-churn-dataset/output/"
+    },
+    "ResourceConfig": {
+      "InstanceType": "ml.m5.large",
+      "InstanceCount": 1,
+      "VolumeSizeInGB": 5
+    },
+    "StoppingCondition": {
+      "MaxRuntimeInSeconds": 1800
+    },
+    "Environment": {
+      "MLFLOW_TRACKING_URI": "http://mlflow.int.itsconnectedcar.com"
+    },
+    "Tags": [
+      {"Key": "project", "Value": "mlops-churn-platform"}
+    ]
+  }
