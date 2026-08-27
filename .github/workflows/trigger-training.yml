@@ -11,6 +11,29 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+      - name: Install AWS CLI v2 without root
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$HOME/bin" "$HOME/aws-cli"
+
+          ARCH="$(uname -m)"
+          case "$ARCH" in
+            x86_64) AWS_ARCH="x86_64" ;;
+            aarch64|arm64) AWS_ARCH="aarch64" ;;
+            *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
+          esac
+
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o "/tmp/awscliv2.zip"
+          unzip -q /tmp/awscliv2.zip -d /tmp
+
+          /tmp/aws/install -i "$HOME/aws-cli" -b "$HOME/bin" --update
+
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          "$HOME/bin/aws" --version
 
       - name: Launch SageMaker training job
-        run: python3 scripts/launch_sagemaker_job.py
+        run: |
+          chmod +x scripts/launch_sagemaker_job.sh
+          ./scripts/launch_sagemaker_job.sh
