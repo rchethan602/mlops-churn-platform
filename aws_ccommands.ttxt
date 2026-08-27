@@ -25,3 +25,16 @@ aws iam put-role-policy \
 
 
 ///
+
+
+aws iam create-role \
+  --role-name sagemaker-execution-role \
+  --assume-role-policy-document file://sagemakerpolicy.json \
+  --description "Execution role for SageMaker training jobs in mlops-churn-platform" \
+  --profile twist
+
+aws iam put-role-policy \
+  --role-name sagemaker-execution-role \
+  --policy-name mlops-churn-training-permissions \
+  --policy-document file://sagemakerexecutionroleperm.json \
+  --profile twist

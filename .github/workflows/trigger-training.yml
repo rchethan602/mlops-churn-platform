@@ -1,0 +1,19 @@
+name: Trigger SageMaker Training
+
+# Manual trigger for now - Phase 5 will refine this (e.g. trigger on image
+# push, or on a release tag) once the manual flow is proven end-to-end.
+on:
+  workflow_dispatch:
+
+jobs:
+  launch-training-job:
+    runs-on: mlflow-runner
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install boto3
+        run: pip3 install boto3 --break-system-packages
+
+      - name: Launch SageMaker training job
+        run: python3 scripts/launch_sagemaker_job.py

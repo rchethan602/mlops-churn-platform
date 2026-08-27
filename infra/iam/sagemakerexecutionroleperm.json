@@ -1,0 +1,46 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "S3DatasetRead",
+        "Effect": "Allow",
+        "Action": [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        "Resource": [
+          "arn:aws:s3:::mlops-churn-dataset",
+          "arn:aws:s3:::mlops-churn-dataset/*"
+        ]
+      },
+      {
+        "Sid": "ECRPullTrainingImage",
+        "Effect": "Allow",
+        "Action": [
+          "ecr:GetAuthorizationToken"
+        ],
+        "Resource": "*"
+      },
+      {
+        "Sid": "ECRPullTrainingImageScoped",
+        "Effect": "Allow",
+        "Action": [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ],
+        "Resource": "arn:aws:ecr:eu-central-1:907615197397:repository/mlops-churn-train"
+      },
+      {
+        "Sid": "CloudWatchLogsForTrainingJob",
+        "Effect": "Allow",
+        "Action": [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams"
+        ],
+        "Resource": "arn:aws:logs:eu-central-1:907615197397:log-group:/aws/sagemaker/TrainingJobs:*"
+      }
+    ]
+  }

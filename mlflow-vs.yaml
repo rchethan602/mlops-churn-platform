@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mlflow-vs
+  namespace: mlflow   # change to whatever namespace the mlflow Service actually lives in
+spec:
+  hosts:
+    - "mlflow.int.itsconnectedcar.com"
+  gateways:
+    - istio-system/http-gateway
+  http:
+    - route:
+        - destination:
+            host: mlflow.mlflow.svc.cluster.local   # <service-name>.<namespace>.svc.cluster.local
+            port:
+              number: 5000
