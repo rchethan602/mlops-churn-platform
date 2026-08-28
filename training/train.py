@@ -63,14 +63,19 @@ def load_dataset(train_dir: str) -> pd.DataFrame:
 
 
 def prepare_features(df: pd.DataFrame):
-    # AI4I 2020 columns: UDI, Product ID, Type, Air temperature [K],
-    # Process temperature [K], Rotational speed [rpm], Torque [Nm],
-    # Tool wear [min], Machine failure, TWF, HDF, PWF, OSF, RNF
+    # Actual columns in this dataset variant: UDI, Product ID, Type,
+    # Air temperature [K], Process temperature [K], Rotational speed [rpm],
+    # Torque [Nm], Tool wear [min], Target, Failure Type
     df = df.drop(columns=["UDI", "Product ID"])
 
-    # Binary target
-    y = df["Machine failure"]
-    X = df.drop(columns=["Machine failure", "TWF", "HDF", "PWF", "OSF", "RNF"])
+    # Binary target: 0 = no failure, 1 = failure
+    y = df["Target"]
+
+    # Drop Target and Failure Type - Failure Type is a post-hoc label
+    # (the specific failure mode), not a usable input feature: it's only
+    # populated because a failure occurred, so including it would leak
+    # the answer straight into the model.
+    X = df.drop(columns=["Target", "Failure Type"])
 
     # Only one categorical column ("Type": L/M/H) - simple label encoding,
     # deliberately not one-hot to keep this a single, auditable transform
