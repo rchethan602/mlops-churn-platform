@@ -1,0 +1,48 @@
+name: CI - Build and Push Training Image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'training/**'
+      - '.github/workflows/ci-train.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: mlflow-runner
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set image tag (short git SHA - immutable, traceable to exact commit)
+        id: vars
+        run: echo "tag=$(echo ${GITHUB_SHA} | cut -c1-8)" >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to ECR (no aws CLI needed - this action is self-contained)
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Buildx with Kubernetes driver (no privileged containers needed)
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: kubernetes
+          driver-opts: |
+            namespace=arc-systems
+
+      - name: Build and push training image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./training
+          push: true
+          tags: |
+            ${{ steps.ecr-login.outputs.registry }}/mlops-churn-train:${{ steps.vars.outputs.tag }}
+            ${{ steps.ecr-login.outputs.registry }}/mlops-churn-train:latest
+
+      - name: Summary
+        run: |
+          echo "### Training image pushed" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`${{ steps.ecr-login.outputs.registry }}/mlops-churn-train:${{ steps.vars.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
