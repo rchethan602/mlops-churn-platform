@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: buildkit-builder
+  namespace: arc-systems
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/exec", "pods/log"]
+    verbs: ["create", "get", "list", "watch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: buildkit-builder-binding
+  namespace: arc-systems
+subjects:
+  - kind: ServiceAccount
+    name: mlflow-runner-sa
+    namespace: arc-systems
+roleRef:
+  kind: Role
+  name: buildkit-builder
+  apiGroup: rbac.authorization.k8s.io

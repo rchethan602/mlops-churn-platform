@@ -1,46 +1,83 @@
 {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Sid": "S3DatasetRead",
-        "Effect": "Allow",
-        "Action": [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ],
-        "Resource": [
-          "arn:aws:s3:::mlops-churn-dataset",
-          "arn:aws:s3:::mlops-churn-dataset/*"
-        ]
-      },
-      {
-        "Sid": "ECRPullTrainingImage",
-        "Effect": "Allow",
-        "Action": [
-          "ecr:GetAuthorizationToken"
-        ],
-        "Resource": "*"
-      },
-      {
-        "Sid": "ECRPullTrainingImageScoped",
-        "Effect": "Allow",
-        "Action": [
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ],
-        "Resource": "arn:aws:ecr:eu-central-1:907615197397:repository/mlops-churn-train"
-      },
-      {
-        "Sid": "CloudWatchLogsForTrainingJob",
-        "Effect": "Allow",
-        "Action": [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents",
-          "logs:DescribeLogStreams"
-        ],
-        "Resource": "arn:aws:logs:eu-central-1:907615197397:log-group:/aws/sagemaker/TrainingJobs:*"
-      }
-    ]
-  }
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3DatasetRead",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::mlops-churn-dataset",
+        "arn:aws:s3:::mlops-churn-dataset/*"
+      ]
+    },
+    {
+      "Sid": "S3TrainingOutputWrite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::mlops-churn-dataset/output/*"
+    },
+    {
+      "Sid": "MLflowArtifactStoreWrite",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::twist-mlflow-artifacts",
+        "arn:aws:s3:::twist-mlflow-artifacts/*"
+      ]
+    },
+    {
+      "Sid": "ECRPullTrainingImage",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ECRPullTrainingImageScoped",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "arn:aws:ecr:eu-central-1:907615197397:repository/mlops-churn-train"
+    },
+    {
+      "Sid": "CloudWatchLogsForTrainingJob",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+      ],
+      "Resource": "arn:aws:logs:eu-central-1:907615197397:log-group:/aws/sagemaker/TrainingJobs:*"
+    },
+    {
+      "Sid": "VpcNetworkingForTrainingJob",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateNetworkInterface",
+        "ec2:CreateNetworkInterfacePermission",
+        "ec2:DeleteNetworkInterface",
+        "ec2:DeleteNetworkInterfacePermission",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeDhcpOptions",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeSecurityGroups"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
