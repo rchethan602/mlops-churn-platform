@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-MLFLOW_URI="http://mlflow.int.itsconnectedcar.com"
+MLFLOW_URI="http://mlflow.mlflow.svc.cluster.local"
 MODEL_NAME="vehicle-predictive-maintenance"
 METRIC_NAME="roc_auc"
 THRESHOLD="${PROMOTION_THRESHOLD:-0.85}"
