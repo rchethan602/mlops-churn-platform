@@ -1,0 +1,46 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ClusterServingRuntime
+metadata:
+  name: kserve-mlserver
+spec:
+  annotations:
+    prometheus.kserve.io/port: "8080"
+    prometheus.kserve.io/path: "/metrics"
+  supportedModelFormats:
+    - name: sklearn
+      version: "1"
+      autoSelect: true
+      priority: 2
+    - name: xgboost
+      version: "1"
+      autoSelect: true
+      priority: 2
+    - name: lightgbm
+      version: "3"
+      autoSelect: true
+      priority: 2
+    - name: mlflow
+      version: "1"
+      autoSelect: true
+      priority: 1
+  protocolVersions:
+    - v2
+  containers:
+    - name: kserve-container
+      image: docker.io/seldonio/mlserver:1.5.0
+      env:
+        - name: MLSERVER_MODEL_IMPLEMENTATION
+          value: mlserver_mlflow.MLflowRuntime
+        - name: MLSERVER_HTTP_PORT
+          value: "8080"
+        - name: MLSERVER_GRPC_PORT
+          value: "8081"
+        - name: MODELS_DIR
+          value: /mnt/models
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi

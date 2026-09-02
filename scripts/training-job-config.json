@@ -1,7 +1,7 @@
 {
     "TrainingJobName": "PLACEHOLDER-SET-BY-SCRIPT",
     "AlgorithmSpecification": {
-      "TrainingImage": "907615197397.dkr.ecr.eu-central-1.amazonaws.com/mlops-churn-train:v3",
+      "TrainingImage": "907615197397.dkr.ecr.eu-central-1.amazonaws.com/mlops-churn-train:v5",
       "TrainingInputMode": "File"
     },
     "RoleArn": "arn:aws:iam::907615197397:role/sagemaker-execution-role",

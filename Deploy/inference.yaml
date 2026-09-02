@@ -1,0 +1,23 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: vehicle-predictive-maintenance
+  namespace: mlops-serving
+spec:
+  predictor:
+    serviceAccountName: kserve-model-sa
+    model:
+      modelFormat:
+        name: mlflow
+      protocolVersion: v2
+      # Points directly at the artifact path MLflow logged this run's model
+      # to - this is run 60d3e456690e4d45becefcb0c8e76369 in experiment 3,
+      # the one that completed successfully end-to-end.
+      storageUri: "s3://twist-mlflow-artifacts/3/60d3e456690e4d45becefcb0c8e76369/artifacts/model"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "512Mi"
+        limits:
+          cpu: "1"
+          memory: "1Gi"

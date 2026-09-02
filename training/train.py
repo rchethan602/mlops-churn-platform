@@ -105,6 +105,10 @@ def main():
             "max_depth": args.max_depth,
             "random_state": args.random_state,
             "test_size": args.test_size,
+            # Lineage: which S3 dataset version trained this model. Passed in
+            # via env var at job-launch time - this is what lets you trace
+            # any registered model back to the exact data that produced it.
+            "dataset_version": os.environ.get("DATASET_VERSION", "unknown"),
         }
         mlflow.log_params(params)
 
@@ -131,10 +135,15 @@ def main():
 
         # Logs the model to MLflow's S3 artifact store AND registers a new
         # version under this name in the MLflow Model Registry in one call.
+        # input_example lets MLflow auto-infer and log a model signature
+        # (expected input/output schema) - without this, KServe's MLServer
+        # runtime can't reliably decode V2 protocol requests, which is why
+        # we had to manually specify content_type=pd at inference time.
         mlflow.sklearn.log_model(
             sk_model=model,
             artifact_path="model",
             registered_model_name="vehicle-predictive-maintenance",
+            input_example=X_train.iloc[:5],
         )
 
         # Also satisfy SageMaker's own contract: anything written here gets

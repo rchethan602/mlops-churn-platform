@@ -1,0 +1,28 @@
+name: Promote Model to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: 'Minimum roc_auc required to promote (default 0.85)'
+        required: false
+        default: '0.85'
+
+jobs:
+  promote:
+    runs-on: mlflow-runner
+    # Requires a GitHub Environment named "production" configured with at
+    # least one required reviewer (Settings -> Environments -> production ->
+    # Required reviewers). This is the human approval gate before anything
+    # is marked production-ready - the workflow pauses here until approved.
+    environment: production
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Promote latest model version
+        env:
+          PROMOTION_THRESHOLD: ${{ inputs.threshold }}
+        run: |
+          chmod +x scripts/promote_model.sh
+          ./scripts/promote_model.sh

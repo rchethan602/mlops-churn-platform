@@ -1,0 +1,18 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::907615197397:oidc-provider/oidc.eks.eu-central-1.amazonaws.com/id/6A1541D6E54177C07BB5022E69328746"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "oidc.eks.eu-central-1.amazonaws.com/id/6A1541D6E54177C07BB5022E69328746:aud": "sts.amazonaws.com",
+            "oidc.eks.eu-central-1.amazonaws.com/id/6A1541D6E54177C07BB5022E69328746:sub": "system:serviceaccount:mlops-serving:kserve-model-sa"
+          }
+        }
+      }
+    ]
+  }

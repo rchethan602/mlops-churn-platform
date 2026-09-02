@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mlops-serving
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kserve-model-sa
+  namespace: mlops-serving
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::907615197397:role/kserve-serving-role
