@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kserve-deployer
+  namespace: mlops-serving
+rules:
+  - apiGroups: ["serving.kserve.io"]
+    resources: ["inferenceservices"]
+    verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kserve-deployer-binding
+  namespace: mlops-serving
+subjects:
+  - kind: ServiceAccount
+    name: mlflow-runner-sa
+    namespace: arc-systems
+roleRef:
+  kind: Role
+  name: kserve-deployer
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,17 @@
+name: Rollback Production Model
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rollback:
+    runs-on: mlflow-runner
+    environment: production
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Roll back to previous production version
+        run: |
+          chmod +x scripts/rollback_model.sh
+          ./scripts/rollback_model.sh

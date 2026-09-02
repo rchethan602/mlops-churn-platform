@@ -21,6 +21,8 @@ LATEST=$(curl -s -G "${MLFLOW_URI}/api/2.0/mlflow/model-versions/search" \
   --data-urlencode "order_by=version_number DESC" \
   --data-urlencode "max_results=1")
 
+echo "Raw API response: ${LATEST}"
+
 VERSION=$(echo "$LATEST" | jq -r '.model_versions[0].version')
 RUN_ID=$(echo "$LATEST" | jq -r '.model_versions[0].run_id')
 SOURCE=$(echo "$LATEST" | jq -r '.model_versions[0].source')
@@ -56,10 +58,33 @@ CURRENT_PROD=$(curl -s -G "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias"
   --data-urlencode "alias=production" | jq -r '.model_version.version // "none"')
 echo "Current production version (before this promotion): ${CURRENT_PROD}"
 
+if [ "$CURRENT_PROD" != "none" ] && [ "$CURRENT_PROD" != "$VERSION" ]; then
+  echo "Setting 'previous-production' alias on version ${CURRENT_PROD} for rollback..."
+  curl -s -X POST "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias" \
+    -H "Content-Type: application/json" \
+    -d "{\"name\": \"${MODEL_NAME}\", \"alias\": \"previous-production\", \"version\": \"${CURRENT_PROD}\"}"
+fi
+
 echo "Promoting version ${VERSION} to 'production' alias..."
 curl -s -X POST "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias" \
   -H "Content-Type: application/json" \
   -d "{\"name\": \"${MODEL_NAME}\", \"alias\": \"production\", \"version\": \"${VERSION}\"}"
+
+echo "Redeploying KServe InferenceService to serve version ${VERSION}..."
+if ! command -v kubectl &> /dev/null; then
+  echo "kubectl not found - downloading static binary"
+  curl -sL -o /usr/local/bin/kubectl \
+    "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  chmod +x /usr/local/bin/kubectl
+fi
+
+kubectl patch inferenceservice vehicle-predictive-maintenance -n mlops-serving \
+  --type merge \
+  -p "{\"spec\":{\"predictor\":{\"model\":{\"storageUri\":\"${SOURCE}\"}}}}"
+
+echo "Waiting for InferenceService to become Ready..."
+kubectl wait --for=condition=Ready inferenceservice/vehicle-predictive-maintenance \
+  -n mlops-serving --timeout=180s
 
 echo ""
 echo "=== Promotion complete ==="
