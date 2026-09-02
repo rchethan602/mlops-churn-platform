@@ -16,7 +16,7 @@ if ! command -v jq &> /dev/null; then
 fi
 
 echo "Finding latest version of '${MODEL_NAME}'..."
-LATEST=$(curl -s "${MLFLOW_URI}/api/2.0/mlflow/model-versions/search" \
+LATEST=$(curl -s -G "${MLFLOW_URI}/api/2.0/mlflow/model-versions/search" \
   --data-urlencode "filter=name='${MODEL_NAME}'" \
   --data-urlencode "order_by=version_number DESC" \
   --data-urlencode "max_results=1")
@@ -33,7 +33,7 @@ fi
 echo "Candidate: version ${VERSION} (run ${RUN_ID})"
 
 echo "Fetching metrics for run ${RUN_ID}..."
-RUN_DATA=$(curl -s "${MLFLOW_URI}/api/2.0/mlflow/runs/get" \
+RUN_DATA=$(curl -s -G "${MLFLOW_URI}/api/2.0/mlflow/runs/get" \
   --data-urlencode "run_id=${RUN_ID}")
 
 METRIC_VALUE=$(echo "$RUN_DATA" | jq -r --arg m "$METRIC_NAME" \
@@ -51,7 +51,7 @@ if [ "$PASSES" != "1" ]; then
 fi
 
 echo "Passed quality gate. Recording current production version for rollback reference..."
-CURRENT_PROD=$(curl -s "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias" \
+CURRENT_PROD=$(curl -s -G "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias" \
   --data-urlencode "name=${MODEL_NAME}" \
   --data-urlencode "alias=production" | jq -r '.model_version.version // "none"')
 echo "Current production version (before this promotion): ${CURRENT_PROD}"
