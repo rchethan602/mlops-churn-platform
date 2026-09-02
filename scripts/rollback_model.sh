@@ -11,7 +11,7 @@ if ! command -v jq &> /dev/null; then
 fi
 if ! command -v kubectl &> /dev/null; then
   curl -sL -o /usr/local/bin/kubectl \
-    "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
   chmod +x /usr/local/bin/kubectl
 fi
 
