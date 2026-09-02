@@ -6,13 +6,16 @@ MODEL_NAME="vehicle-predictive-maintenance"
 METRIC_NAME="roc_auc"
 THRESHOLD="${PROMOTION_THRESHOLD:-0.85}"
 
-# jq isn't available on the runner (see earlier apt/proxy issues) - pull a
-# static binary directly rather than relying on a package manager.
+# jq isn't guaranteed on the runner - pull a static binary directly rather
+# than relying on a package manager. Written to a user-writable path since
+# the runner runs as a non-root user (/usr/local/bin is not writable).
 if ! command -v jq &> /dev/null; then
-  echo "jq not found - downloading static binary"
-  curl -sL -o /usr/local/bin/jq \
+  echo "jq not found - downloading static binary to user-writable path"
+  mkdir -p "$HOME/bin"
+  curl -fSL -o "$HOME/bin/jq" \
     https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
-  chmod +x /usr/local/bin/jq
+  chmod +x "$HOME/bin/jq"
+  export PATH="$HOME/bin:$PATH"
 fi
 
 echo "Finding latest version of '${MODEL_NAME}'..."
@@ -72,10 +75,12 @@ curl -s -X POST "${MLFLOW_URI}/api/2.0/mlflow/registered-models/alias" \
 
 echo "Redeploying KServe InferenceService to serve version ${VERSION}..."
 if ! command -v kubectl &> /dev/null; then
-  echo "kubectl not found - downloading static binary"
-  curl -fSL -o /usr/local/bin/kubectl \
+  echo "kubectl not found - downloading static binary to user-writable path"
+  mkdir -p "$HOME/bin"
+  curl -fSL -o "$HOME/bin/kubectl" \
     "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
-  chmod +x /usr/local/bin/kubectl
+  chmod +x "$HOME/bin/kubectl"
+  export PATH="$HOME/bin:$PATH"
 fi
 
 kubectl patch inferenceservice vehicle-predictive-maintenance -n mlops-serving \
