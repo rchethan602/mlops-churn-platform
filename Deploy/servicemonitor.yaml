@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vehicle-predictive-maintenance-predictor
+  namespace: mlops-serving
+  labels:
+    # REQUIRED - matches Prometheus's serviceMonitorSelector.matchLabels
+    # (confirmed earlier via `kubectl get prometheus -A -o yaml`)
+    release: kube-prom
+spec:
+  selector:
+    matchLabels:
+      app: isvc.vehicle-predictive-maintenance-predictor
+  namespaceSelector:
+    matchNames:
+      - mlops-serving
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
